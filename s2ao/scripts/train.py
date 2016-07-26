@@ -1,12 +1,13 @@
 from s2ao.preprocessing import DataLoader, BatchGenerator
 from s2ao.models import s2ao
-from s2ao.config import config
+import s2ao.config as cfg
 from tqdm import tqdm
 import logging
 import sys
 
 
 def train_s2ao():
+    config = cfg.get_config()
     logging.basicConfig(format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
     logger = logging.getLogger(__name__)
     level = config["logging"]["level"].lower()

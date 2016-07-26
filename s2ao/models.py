@@ -96,9 +96,9 @@ class s2ao():
         self.predict_n = tf.argmax(tf.nn.softmax(result_n), dimension=1)
         self.sess = tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=8))
         self.sess.run(self.init_op)
-        tf.train.write_graph(self.sess.graph_def, '/home/dianli/', 'graph.pbtxt')
-        writer = tf.train.SummaryWriter('/home/dianli')
-        writer.add_graph(self.sess.graph)
+        # tf.train.write_graph(self.sess.graph_def, '/home/dianli/', 'graph.pbtxt')
+        # writer = tf.train.SummaryWriter('/home/dianli')
+        # writer.add_graph(self.sess.graph)
 
     def train(self, batch_data, batch_verb, batch_noun):
         """

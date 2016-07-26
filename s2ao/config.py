@@ -1,15 +1,9 @@
 import os
 import configparser
 
-config = configparser.ConfigParser(allow_no_value = True)
-config.optionxform = str
-if not config.read("s2ao_config.ini"):
-    print("No config fie found, generation default settings.")
 
+def gen_config(config):
     cwd = os.getcwd()
-    config = configparser.ConfigParser(allow_no_value=True)
-    config.optionxform = str
-
     # default values
     config.add_section("logging")
     config.set("logging", "level", "INFO")
@@ -58,3 +52,10 @@ if not config.read("s2ao_config.ini"):
     config.set("training", "hidden_size2", "1000")
     with open("s2ao_config.ini", mode="w") as f:
         config.write(f)
+def get_config():
+    config = configparser.ConfigParser(allow_no_value = True)
+    config.optionxform = str
+    if not config.read("s2ao_config.ini"):
+        print("No config fie found, generating default settings.")
+        gen_config(config)
+    return config
