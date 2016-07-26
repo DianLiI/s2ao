@@ -1,11 +1,12 @@
-if __name__ == "__main__":
-    from s2ao.preprocessing import DataLoader, BatchGenerator
-    from s2ao.models import s2ao
-    from s2ao.config import config
-    from tqdm import tqdm
-    import logging
-    import sys
+from s2ao.preprocessing import DataLoader, BatchGenerator
+from s2ao.models import s2ao
+from s2ao.config import config
+from tqdm import tqdm
+import logging
+import sys
 
+
+def train_s2ao():
     logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
     logger = logging.getLogger(__name__)
     level = config["logging"]["level"].lower()

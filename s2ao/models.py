@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import tensorflow as tf
-from tqdm import tqdm
 
 from s2ao.config import config
 
