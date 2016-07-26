@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -25,9 +25,7 @@ setup(
     author="Dian Li",
     author_email='dianli@uchicago.edu',
     url='https://github.com/lilinned/s2ao',
-    packages=[
-        's2ao',
-    ],
+    packages=find_packages(),
     package_dir={'s2ao':
                  's2ao'},
     include_package_data=True,
