@@ -13,7 +13,7 @@ def train_s2ao():
         l = logging.DEBUG
     else:
         l = logging.INFO
-    logging.basicConfig(format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s", level=l)
+    logging.basicConfig(format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]\n %(message)s", level=l)
     logger = logging.getLogger(__name__)
     fileHandler = logging.FileHandler("{0}/{1}.log".format(config["path"]["log_dir"], "new_model"))
     logger.addHandler(fileHandler)
