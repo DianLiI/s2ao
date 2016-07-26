@@ -36,8 +36,8 @@ class DataLoader(object):
         self.test_weight = float(data_config["test_weight"])
         self.valid_weight = float(data_config["valid_weight"])
         self.max_video_length = int(data_config["max_video_length"])
-        self.hdf5_file = os.path.join(config["path"]["project_root"], "data/feature_lable.hdf5")
-        self.pkl_file = os.path.join(config["path"]["project_root"], "data/parameter.pkl")
+        self.hdf5_file = config["path"]["hdf5_file"]
+        self.pkl_file = config["path"]["pkl_file"]
 
         # logging
         cfg = '\n'.join("%s: %s" % item for item in vars(self).items())

@@ -7,7 +7,7 @@ import sys
 
 
 def train_s2ao():
-    logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+    logging.basicConfig(format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
     logger = logging.getLogger(__name__)
     level = config["logging"]["level"].lower()
     if level == "debug":
@@ -16,11 +16,9 @@ def train_s2ao():
         logging.basicConfig(level=logging.INFO)
 
     fileHandler = logging.FileHandler("{0}/{1}.log".format(config["path"]["log_dir"], "new_model"))
-    fileHandler.setFormatter(logFormatter)
     logger.addHandler(fileHandler)
 
     consoleHandler = logging.StreamHandler(stream=sys.stdout)
-    consoleHandler.setFormatter(logFormatter)
     logger.addHandler(consoleHandler)
     logger.info("Logger online")
 

@@ -6,7 +6,7 @@ config.optionxform = str
 if not config.read("s2ao_config.ini"):
     print("No config fie found, generation default settings.")
 
-    ROOT_DIR = os.getcwd()
+    cwd = os.getcwd()
     config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str
 
@@ -14,10 +14,12 @@ if not config.read("s2ao_config.ini"):
     config.add_section("logging")
     config.set("logging", "level", "INFO")
     config.add_section("path")
-    config.set("path", "project_root", ROOT_DIR)
-    config.set("path", "data_root", os.path.join(ROOT_DIR, 'data/small'))
-    config.set("path", "data_root", os.path.join(ROOT_DIR, 'data/small'))
-    config.set("path", "log_dir", os.path.join(ROOT_DIR, 'log'))
+    config.set("path", "working_dir", cwd)
+    config.set("path", "data_root", os.path.join(cwd, 'data/small'))
+    config.set("path", "data_root", os.path.join(cwd, 'data/small'))
+    config.set("path", "hdf5_file", os.path.join(cwd, 'data/feature_lable.hdf5'))
+    config.set("path", "pkl_file", os.path.join(cwd, 'data/parameter.pkl'))
+    config.set("path", "log_dir", os.path.join(cwd, 'log'))
 
     config.add_section("data")
     config.set("data", "# The longest video sequence, default 25")

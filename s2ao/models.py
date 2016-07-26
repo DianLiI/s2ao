@@ -5,18 +5,6 @@ import tensorflow as tf
 
 from s2ao.config import config
 
-logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-rootLogger = logging.getLogger()
-
-fileHandler = logging.FileHandler("{0}/{1}.log".format(config["path"]["log_dir"], "new_model"))
-fileHandler.setFormatter(logFormatter)
-rootLogger.addHandler(fileHandler)
-
-consoleHandler = logging.StreamHandler()
-consoleHandler.setFormatter(logFormatter)
-rootLogger.addHandler(consoleHandler)
-rootLogger.critical("Logger online")
-
 
 class s2ao():
     def __init__(self, hidden_num_1, hidden_num_2, lstm_step, class1_size, class2_size):
