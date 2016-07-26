@@ -8,14 +8,13 @@ import sys
 
 def train_s2ao():
     config = cfg.get_config()
-    logging.basicConfig(format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-    logger = logging.getLogger(__name__)
     level = config["logging"]["level"].lower()
     if level == "debug":
-        logging.basicConfig(level=logging.DEBUG)
+        l = logging.DEBUG
     else:
-        logging.basicConfig(level=logging.INFO)
-
+        l = logging.INFO
+    logging.basicConfig(format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s", level=l)
+    logger = logging.getLogger(__name__)
     fileHandler = logging.FileHandler("{0}/{1}.log".format(config["path"]["log_dir"], "new_model"))
     logger.addHandler(fileHandler)
 
