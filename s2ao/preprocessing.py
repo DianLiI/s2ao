@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from s2ao.config import config
+import s2ao.config as cfg
 import s2ao.utils as utils
 
 
@@ -242,6 +242,7 @@ class DataLoader(object):
 
 class BatchGenerator(object):
     def __init__(self, loader, batch_size):
+        config = cfg.get_config()
         self.loader = loader
         self.offsets = dict(train=0, valid=0, test=0)
         self.batch_size = batch_size
@@ -252,9 +253,6 @@ class BatchGenerator(object):
         self.shuffled_idx["train"] = utils.shuffle(loader.get_data_size("train"), seed=seed)
         self.shuffled_idx["test"] = utils.shuffle(loader.get_data_size("test"), seed=seed)
         self.shuffled_idx["valid"] = utils.shuffle(loader.get_data_size("valid"), seed=seed)
-
-    def progress(self):
-        return self.offsets["train"], self.train_size
 
     def get_num_batches(self, subset):
         return self.loader.get_data_size(subset) // self.batch_size + 1

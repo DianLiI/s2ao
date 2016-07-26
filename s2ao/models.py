@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 
-from s2ao.config import config
+import s2ao.config as cfg
 
 
 class s2ao():
@@ -107,6 +107,7 @@ class s2ao():
         :param batch_noun: [batch_size * NUM_NOUN]
         :return:
         """
+        config = cfg.get_config()
         feed_dict = {self.input: batch_data, self.verb_label: batch_verb, self.noun_label: batch_noun,
                      self.keep_prob: float(config["training"]["keep_prob"])}
         v_pred, _ = self.sess.run((self.predict_v, self.train_verb), feed_dict=feed_dict)
