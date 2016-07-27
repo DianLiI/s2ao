@@ -62,11 +62,12 @@ class s2ao():
                 W = tf.get_variable("W", shape=[hidden_num_2, class1_size],
                                     initializer=tf.contrib.layers.xavier_initializer())
                 b = tf.get_variable("b", shape=[class1_size], initializer=tf.nn.init_ops.zeros_initializer)
-                result_v = tf.nn.xw_plus_b(result, W, b, name="result")
+                action_dist_raw = tf.nn.xw_plus_b(result, W, b, name="result")
+                self.action_dist = tf.nn.softmax(action_dist_raw)
 
-            with tf.variable_scope('cost_verb'), tf.name_scope('cost_verb'):
-                self.verb_label = tf.placeholder(shape=[None, class1_size], dtype=tf.float32, name="verb_label")
-                self.cost_v = tf.nn.softmax_cross_entropy_with_logits(result_v, self.verb_label, name="verb_cost")
+            with tf.variable_scope('cost_action'), tf.name_scope('cost_action'):
+                self.action_label = tf.placeholder(shape=[None], dtype=tf.int32, name="action_label")
+                self.cost_v = tf.nn.sparse_softmax_cross_entropy_with_logits(action_dist_raw, self.action_label, name="action_cost")
 
         with tf.variable_scope("phase2"), tf.name_scope("phase2"):
             with tf.variable_scope("fc4"), tf.name_scope("fc4"):
@@ -80,53 +81,40 @@ class s2ao():
                 W = tf.get_variable("W", shape=[hidden_num_2, class2_size],
                                     initializer=tf.contrib.layers.xavier_initializer())
                 b = tf.get_variable("b", shape=[class2_size], initializer=tf.nn.init_ops.zeros_initializer)
-                result_n = tf.nn.xw_plus_b(result, W, b, name="result")
+                object_dist_raw = tf.nn.xw_plus_b(result, W, b, name="result")
+                self.object_dist = tf.nn.softmax(object_dist_raw)
 
-            with tf.variable_scope('cost_noun'), tf.name_scope('cost_noun'):
-                self.noun_label = tf.placeholder(shape=[None, class2_size], dtype=tf.float32, name="noun_label")
-                self.cost_n = tf.nn.softmax_cross_entropy_with_logits(result_n, self.noun_label, name="noun_cost")
+            with tf.variable_scope('cost_object'), tf.name_scope('cost_object'):
+                self.object_label = tf.placeholder(shape=[None], dtype=tf.int32, name="object_label")
+                self.cost_n = tf.nn.sparse_softmax_cross_entropy_with_logits(object_dist_raw, self.object_label, name="object_cost")
 
         phase1_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "phase1")
         phase2_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "phase2")
-        self.train_verb = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(self.cost_v,
+        self.train_action = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(self.cost_v,
                                                                                           var_list=phase1_vars)
-        self.train_noun = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.cost_n, var_list=phase2_vars)
+        self.train_object = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.cost_n, var_list=phase2_vars)
         self.init_op = tf.initialize_all_variables()
-        self.predict_v = tf.argmax(tf.nn.softmax(result_v), dimension=1)
-        self.predict_n = tf.argmax(tf.nn.softmax(result_n), dimension=1)
         self.sess = tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=8))
         self.sess.run(self.init_op)
         # tf.train.write_graph(self.sess.graph_def, '/home/dianli/', 'graph.pbtxt')
         # writer = tf.train.SummaryWriter('/home/dianli')
         # writer.add_graph(self.sess.graph)
 
-    def train(self, batch_data, batch_verb, batch_noun):
+    def train(self, batch_data, batch_action, batch_object):
         """
         :param batch_data: [batch_size * (4096 * 2)]
-        :param batch_verb: [batch_size * 3]
-        :param batch_noun: [batch_size * NUM_NOUN]
+        :param batch_action: [batch_size * 3]
+        :param batch_object: [batch_size * NUM_object]
         :return:
         """
         config = cfg.get_config()
-        feed_dict = {self.input: batch_data, self.verb_label: batch_verb, self.noun_label: batch_noun,
+        feed_dict = {self.input: batch_data, self.action_label: batch_action, self.object_label: batch_object,
                      self.keep_prob: float(config["training"]["keep_prob"])}
-        v_pred, _ = self.sess.run((self.predict_v, self.train_verb), feed_dict=feed_dict)
-        n_pred, _ = self.sess.run((self.predict_n, self.train_noun), feed_dict=feed_dict)
-        t_v = np.sum(v_pred == np.argmax(batch_verb, axis=1))
-        f_v = len(v_pred) - t_v
-        t_n = np.sum(n_pred == np.argmax(batch_noun, axis=1))
-        f_n = len(n_pred) - t_n
-        self.t_v += t_v
-        self.f_v += f_v
-        self.t_n += t_n
-        self.f_n += f_n
+        self.sess.run((self.train_action, self.train_object), feed_dict=feed_dict)
 
-    def stats(self, batch_data, batch_verb, batch_noun):
-        v_pred, n_pred, v_cost, n_cost = self.sess.run((self.predict_v, self.predict_n, self.cost_v, self.cost_n),
-                                                       feed_dict={self.input: batch_data, self.verb_label: batch_verb,
-                                                                  self.noun_label: batch_noun, self.keep_prob: 1})
-        return np.sum(v_cost), np.sum(v_pred == np.argmax(batch_verb, axis=1)) / len(v_pred), \
-               np.sum(n_cost), np.sum(n_pred == np.argmax(batch_noun, axis=1)) / len(n_pred)
+    def predict(self, X):
+        feed_dict = {self.input: X, self.keep_prob: 1}
+        return self.sess.run((self.action_dist, self.object_dist), feed_dict=feed_dict)
 
     @staticmethod
     def last_relevant(output, length):

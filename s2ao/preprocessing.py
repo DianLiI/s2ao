@@ -75,11 +75,11 @@ class DataLoader(object):
         if os.path.exists(self.hdf5_file):
             with h5py.File(self.hdf5_file, "r") as f:
                 self.feats["train"] = np.array(f.get("train/feature"))
-                self.labels["train"] = np.array(f.get("train/label"))
+                self.labels["train"] = np.array(f.get("train/label"), dtype=np.int32)
                 self.feats["test"] = np.array(f.get("test/feature"))
-                self.labels["test"] = np.array(f.get("test/label"))
+                self.labels["test"] = np.array(f.get("test/label"), dtype=np.int32)
                 self.feats["valid"] = np.array(f.get("valid/feature"))
-                self.labels["valid"] = np.array(f.get("valid/label"))
+                self.labels["valid"] = np.array(f.get("valid/label"), dtype=np.int32)
             with open(self.pkl_file, "rb") as f:
                 self.action_index, self.action_size, self.object_index, self.object_size, self.longest_sequence = \
                     pkl.load(f)
@@ -277,16 +277,18 @@ class BatchGenerator(object):
         i = self.offsets[subset]
         while i < min(new_offset, self.loader.labels[subset].shape[0]):
             ind = self.shuffled_idx[subset][i]
-            one_hot = np.zeros(self.loader.action_size)
-            one_hot[self.loader.labels[subset][ind][0]] = 1
-            actions.append(one_hot)
+            # one_hot = np.zeros(self.loader.action_size)
+            # one_hot[self.loader.labels[subset][ind][0]] = 1
+            # actions.append(one_hot)
+            actions.append(self.loader.labels[subset][ind][0])
             feats.append(self.loader.feats[subset][ind])
-            one_hot = np.zeros(self.loader.object_size)
-            one_hot[self.loader.labels[subset][ind][1]] = 1
-            objects.append(one_hot)
+            # one_hot = np.zeros(self.loader.object_size)
+            # one_hot[self.loader.labels[subset][ind][1]] = 1
+            # objects.append(one_hot)
+            objects.append(self.loader.labels[subset][ind][1])
             i += 1
         self.offsets[subset] = new_offset
-        return np.asarray(feats), np.asarray(actions), np.asarray(objects)
+        return np.asarray(feats), np.asarray(actions, dtype=np.int32), np.asarray(objects, dtype=np.int32)
 
     def get_epoch(self, subset):
         ipt, lb1, lb2 = self.next_batch(subset)
